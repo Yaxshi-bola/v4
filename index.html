@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yaxshi Bola - Suyuq Shisha</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // SVG Ikonkalarni komponent sifatida yaratamiz (Lucide Icons o'rniga)
+    const Icons = {
+      Send: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>,
+      MessageCircle: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>,
+      Calendar: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>,
+      CloudSun: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></svg>,
+      Search: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+      Check: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>,
+      Copy: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
+      Sun: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
+      Moon: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
+      ChevronDown: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>,
+      Sparkles: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M7 5H3"/><path d="M21 17v4"/><path d="M23 19h-4"/></svg>,
+      Plus: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
+      Minus: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/></svg>,
+      Crown: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>,
+      Share2: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>,
+      Bell: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+      Heart: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
+      Loader2: ({className}) => <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    };
+
+    const App = () => {
+      // Asosiy holatlar
+      const [time, setTime] = useState(new Date());
+      const [weather, setWeather] = useState({ temp: null, wind: null, loading: true });
+      const [toast, setToast] = useState(null);
+      
+      // Interaktiv elementlar va Tungi rejim
+      const [isDarkMode, setIsDarkMode] = useState(false);
+      const [searchVal, setSearchVal] = useState('');
+      const [activeTab, setActiveTab] = useState('Asosiy');
+      const [counter, setCounter] = useState(0);
+      const [isStarred, setIsStarred] = useState(false);
+      const [dropdownOpen, setDropdownOpen] = useState(false);
+      const [selectedOpt, setSelectedOpt] = useState('Barchasi');
+      const [isAnimatingStar, setIsAnimatingStar] = useState(false);
+      const [navigatingTo, setNavigatingTo] = useState(null);
+
+      // Soatni har soniyada yangilash
+      useEffect(() => {
+        const timer = setInterval(() => setTime(new Date()), 1000);
+        return () => clearInterval(timer);
+      }, []);
+
+      // Qo'qon ob-havosini olish (Lat 40.53, Lon 70.93)
+      useEffect(() => {
+        const fetchWeather = async () => {
+          try {
+            const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=40.53&longitude=70.93&current_weather=true');
+            const data = await res.json();
+            setWeather({
+              temp: data.current_weather.temperature,
+              wind: data.current_weather.windspeed,
+              loading: false
+            });
+          } catch (error) {
+            setWeather({ temp: 'Xato', wind: 'Xato', loading: false });
+          }
+        };
+        fetchWeather();
+      }, []);
+
+      // Sana formatini DD.MM.YYYY-yil ko'rinishiga o'tkazish
+      const formatCustomDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}-yil`;
+      };
+
+      // Xabarnoma (Toast) ko'rsatish funksiyasi
+      const showToast = (message) => {
+        setToast(message);
+        setTimeout(() => setToast(null), 3000);
+      };
+
+      // Nusxa olish funksiyasi
+      const handleCopy = () => {
+        navigator.clipboard.writeText('https://t.me/yomonboIa').then(() => {
+          showToast('Profil havolasi nusxalandi!');
+        }).catch(() => {
+          // Fallback for iframe restrictions
+           const textArea = document.createElement("textarea");
+           textArea.value = 'https://t.me/yomonboIa';
+           document.body.appendChild(textArea);
+           textArea.focus();
+           textArea.select();
+           try {
+             document.execCommand('copy');
+             showToast('Profil havolasi nusxalandi!');
+           } catch (err) {
+             showToast('Nusxa olishda xatolik yuz berdi');
+           }
+           document.body.removeChild(textArea);
+        });
+      };
+
+      // Yulduzcha bosilganda animatsiya qo'shish
+      const handleStarClick = () => {
+        setIsStarred(!isStarred);
+        setIsAnimatingStar(true);
+        showToast(isStarred ? "Olib tashlandi" : "Yoqtirildi!");
+        setTimeout(() => setIsAnimatingStar(false), 400); // Animatsiya vaqti
+      };
+
+      // 2 soniyalik animatsiya bilan linkka o'tish
+      const handleNavigate = (type, url, label) => {
+        setNavigatingTo(type);
+        showToast(`${label} ochilmoqda...`);
+        setTimeout(() => {
+          window.open(url, '_blank');
+          setNavigatingTo(null);
+        }, 2000); // 2 sekundlik go'zal kutish
+      };
+
+      // Saytni ulashish (Web Share API)
+      const handleShare = async () => {
+        const shareUrl = 'https://yaxshi-bola.github.io/v4/'; // Yangilangan havola
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Yaxshi Bola - Liquid Glass UI',
+              text: 'Ushbu ajoyib shishasimon dizaynli saytni ko\'rib chiqing!',
+              url: shareUrl, 
+            });
+            showToast('Muvaffaqiyatli ulashildi!');
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              showToast('Ulashishda xatolik yuz berdi');
+            }
+          }
+        } else {
+          // Agar Web Share API ishlamasa, havolani nusxalaydi
+          navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('Sayt havolasi nusxalandi! Endi ulashishingiz mumkin.');
+          }).catch(() => showToast('Ulashish imkonsiz'));
+        }
+      };
+
+      return (
+        <div className={`min-h-screen flex justify-center p-4 sm:p-8 font-sans relative overflow-hidden selection:bg-blue-300 transition-colors duration-700 ease-in-out ${isDarkMode ? 'bg-[#0f172a] text-slate-100' : 'bg-[#e2e8f0] text-slate-800'}`}>
+          
+          {/* Orqa fon chiroqlari (Tungi rejimda yorqinroq bo'ladi) */}
+          <div className={`absolute top-[-5%] left-[-5%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none transition-colors duration-700 ${isDarkMode ? 'bg-blue-600/30' : 'bg-blue-400/30'}`}></div>
+          <div className={`absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full blur-[120px] pointer-events-none transition-colors duration-700 ${isDarkMode ? 'bg-purple-600/30' : 'bg-purple-400/30'}`}></div>
+          <div className={`absolute top-[30%] left-[40%] w-[30%] h-[30%] rounded-full blur-[100px] pointer-events-none transition-colors duration-700 ${isDarkMode ? 'bg-red-500/20' : 'bg-red-400/20'}`}></div>
+
+          {/* Global CSS va Animatsiyalar */}
+          <style dangerouslySetInnerHTML={{__html: `
+            /* Dinamik O'zgaruvchilar (Kunduzgi va Tungi rejim uchun) */
+            :root {
+              --glass-bg: ${isDarkMode ? 'rgba(30, 41, 59, 0.45)' : 'rgba(255, 255, 255, 0.35)'};
+              --glass-border: ${isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.4)'};
+              --glass-border-top: ${isDarkMode ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.8)'};
+              --glass-shadow: ${isDarkMode ? '8px 8px 24px rgba(0, 0, 0, 0.4)' : '8px 8px 24px rgba(0, 0, 0, 0.04)'};
+              --glass-inset-light: ${isDarkMode ? 'inset 2px 2px 8px rgba(255, 255, 255, 0.05)' : 'inset 2px 2px 8px rgba(255, 255, 255, 0.6)'};
+              --glass-inset-dark: ${isDarkMode ? 'inset -2px -2px 8px rgba(0, 0, 0, 0.5)' : 'inset -2px -2px 8px rgba(0, 0, 0, 0.02)'};
+              
+              --text-main: ${isDarkMode ? '#f8fafc' : '#1e293b'};
+              --text-muted: ${isDarkMode ? '#94a3b8' : '#475569'};
+              
+              --input-bg: ${isDarkMode ? 'rgba(15, 23, 42, 0.4)' : 'rgba(255, 255, 255, 0.25)'};
+              --input-focus: ${isDarkMode ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.45)'};
+              
+              --pill-bg: ${isDarkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(255, 255, 255, 0.4)'};
+              --tab-bg: ${isDarkMode ? 'rgba(51, 65, 85, 0.8)' : 'rgba(255, 255, 255, 0.6)'};
+            }
+
+            .text-main { color: var(--text-main); transition: color 0.4s ease; }
+            .text-muted { color: var(--text-muted); transition: color 0.4s ease; }
+
+            /* Asosiy Suyuq Shisha (Liquid Glass) effekti */
+            .glass-panel {
+              background: var(--glass-bg);
+              backdrop-filter: blur(32px);
+              -webkit-backdrop-filter: blur(32px);
+              border: 1px solid var(--glass-border);
+              border-top: 1.5px solid var(--glass-border-top);
+              border-left: 1.5px solid var(--glass-border-top);
+              box-shadow: var(--glass-shadow), var(--glass-inset-light), var(--glass-inset-dark);
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            /* Bouncy Click Animatsiyasi (Prujina effekti) */
+            .glass-clickable { cursor: pointer; }
+            .glass-clickable:hover {
+              box-shadow: 
+                15px 15px 35px rgba(0, 0, 0, ${isDarkMode ? '0.5' : '0.08'}),
+                var(--glass-inset-light);
+              transform: translateY(-4px) scale(1.01);
+            }
+            .glass-clickable:active {
+              transform: scale(0.92);
+              transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy effect */
+              box-shadow: 
+                4px 4px 12px rgba(0, 0, 0, ${isDarkMode ? '0.3' : '0.03'}),
+                inset 4px 4px 12px rgba(0, 0, 0, ${isDarkMode ? '0.4' : '0.05'});
+            }
+
+            /* Rangli Katta Tugmalar */
+            .color-btn {
+              backdrop-filter: blur(16px);
+              border: 1px solid rgba(255, 255, 255, ${isDarkMode ? '0.1' : '0.3'});
+              border-top: 1.5px solid rgba(255, 255, 255, ${isDarkMode ? '0.3' : '0.7'});
+              border-left: 1.5px solid rgba(255, 255, 255, ${isDarkMode ? '0.3' : '0.7'});
+              color: white;
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .color-btn:hover { 
+              transform: translateY(-5px); 
+              filter: brightness(1.1); 
+            }
+            .color-btn:active { 
+              transform: scale(0.92); 
+              filter: brightness(0.9); 
+              transition: all 0.1s;
+            }
+
+            .glass-btn-red {
+              background: linear-gradient(135deg, rgba(255, 90, 90, 0.85), rgba(220, 30, 30, 0.75));
+              box-shadow: 0 10px 25px rgba(255, 50, 50, ${isDarkMode ? '0.4' : '0.2'}), inset 2px 2px 6px rgba(255, 255, 255, 0.4);
+            }
+            .glass-btn-red:hover { box-shadow: 0 15px 35px rgba(255, 50, 50, ${isDarkMode ? '0.6' : '0.4'}), inset 2px 2px 10px rgba(255, 255, 255, 0.6); }
+
+            .glass-btn-blue {
+              background: linear-gradient(135deg, rgba(70, 160, 255, 0.85), rgba(30, 110, 255, 0.75));
+              box-shadow: 0 10px 25px rgba(30, 110, 255, ${isDarkMode ? '0.4' : '0.2'}), inset 2px 2px 6px rgba(255, 255, 255, 0.4);
+            }
+            .glass-btn-blue:hover { box-shadow: 0 15px 35px rgba(30, 110, 255, ${isDarkMode ? '0.6' : '0.4'}), inset 2px 2px 10px rgba(255, 255, 255, 0.6); }
+
+            .glass-btn-purple {
+              background: linear-gradient(135deg, rgba(170, 100, 255, 0.85), rgba(120, 30, 255, 0.75));
+              box-shadow: 0 10px 25px rgba(130, 40, 255, ${isDarkMode ? '0.4' : '0.2'}), inset 2px 2px 6px rgba(255, 255, 255, 0.4);
+            }
+            .glass-btn-purple:hover { box-shadow: 0 15px 35px rgba(130, 40, 255, ${isDarkMode ? '0.6' : '0.4'}), inset 2px 2px 10px rgba(255, 255, 255, 0.6); }
+
+            /* Input maydonlari */
+            .glass-input {
+              background: var(--input-bg);
+              border: 1px solid var(--glass-border);
+              box-shadow: inset 3px 3px 8px rgba(0, 0, 0, ${isDarkMode ? '0.4' : '0.03'}), inset -3px -3px 8px rgba(255, 255, 255, ${isDarkMode ? '0.02' : '0.6'});
+              transition: all 0.3s ease;
+            }
+            .glass-input:focus-within {
+              background: var(--input-focus);
+              border-color: rgba(255, 255, 255, ${isDarkMode ? '0.3' : '0.8'});
+              box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, ${isDarkMode ? '0.5' : '0.02'}), 
+                inset -4px -4px 8px rgba(255, 255, 255, ${isDarkMode ? '0.05' : '0.8'}), 
+                0 0 20px rgba(96, 165, 250, ${isDarkMode ? '0.2' : '0.3'}); /* Glowing ko'k effekt */
+              transform: scale(1.02);
+            }
+
+            /* Dumaloq shisha element */
+            .glass-pill {
+              background: var(--pill-bg);
+              border: 1px solid var(--glass-border);
+              box-shadow: 0 4px 10px rgba(0,0,0,${isDarkMode ? '0.2' : '0.03'}), inset 1px 1px 3px rgba(255,255,255,${isDarkMode ? '0.1' : '0.8'});
+            }
+
+            /* Yaltirash (Shimmer) effekti uchun maxsus animatsiya */
+            @keyframes shimmer-sweep {
+              0% { transform: translateX(-150%) skewX(-25deg); }
+              15% { transform: translateX(250%) skewX(-25deg); }
+              100% { transform: translateX(250%) skewX(-25deg); }
+            }
+            .shimmer-sweep {
+              background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+              animation: shimmer-sweep 3s infinite;
+              pointer-events: none;
+            }
+
+            /* Maxsus Animatsiyalar */
+            @keyframes pop {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.5) rotate(15deg); filter: brightness(1.5); }
+              100% { transform: scale(1) rotate(0deg); }
+            }
+            .animate-pop {
+              animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            @keyframes float {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-8px); }
+            }
+            .animate-float {
+              animation: float 6s ease-in-out infinite;
+            }
+          `}} />
+
+          <div className="max-w-6xl w-full z-10 flex flex-col gap-8 pb-20 pt-4">
+            
+            {/* YUQORI QISM: Sarlavha va Ulashish */}
+            <div className="flex justify-between items-center px-2">
+              <h1 className="text-3xl sm:text-5xl font-extrabold text-main flex items-center gap-3 tracking-tight animate-float">
+                <Icons.Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
+                Yaxshi Bola
+              </h1>
+              <button onClick={handleShare} className="glass-panel glass-clickable rounded-full px-5 py-3 flex items-center gap-2 font-bold text-muted group">
+                <Icons.Share2 className="w-5 h-5 group-hover:text-blue-500 transition-colors" /> <span className="hidden sm:inline">Ulashish</span>
+              </button>
+            </div>
+
+            {/* ASOSIY GRID LAYOUT */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              
+              <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6">
+                
+                {/* 1-QATOR: Asosiy Rangli Tugmalar */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <button 
+                    onClick={() => handleNavigate('profile', 'https://t.me/yomonboIa', 'Telegram Profil')}
+                    className={`color-btn glass-btn-red rounded-3xl px-6 py-5 flex items-center justify-center gap-3 cursor-pointer group relative transition-all duration-300 ${navigatingTo === 'profile' ? 'scale-95 brightness-110' : ''}`}
+                  >
+                    <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
+                      <div className="shimmer-sweep absolute top-0 -bottom-2 -left-10 w-[50%] h-[150%]"></div>
+                    </div>
+                    {navigatingTo === 'profile' ? (
+                      <Icons.Loader2 className="w-6 h-6 animate-spin relative z-10" />
+                    ) : (
+                      <Icons.Send className="w-6 h-6 group-hover:-translate-y-1 transition-transform group-hover:rotate-12 relative z-10" />
+                    )}
+                    <span className="font-bold text-lg relative z-10">{navigatingTo === 'profile' ? "Kutib turing..." : "Telegram Profil"}</span>
+                  </button>
+
+                  <button 
+                    onClick={() => handleNavigate('channel', 'https://t.me/yovvoyiroq', 'Kanal')}
+                    className={`color-btn glass-btn-blue rounded-3xl px-6 py-5 flex items-center justify-center gap-3 cursor-pointer group relative transition-all duration-300 ${navigatingTo === 'channel' ? 'scale-95 brightness-110' : ''}`}
+                  >
+                    <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
+                      <div className="shimmer-sweep absolute top-0 -bottom-2 -left-10 w-[50%] h-[150%]"></div>
+                    </div>
+                    {navigatingTo === 'channel' ? (
+                      <Icons.Loader2 className="w-6 h-6 animate-spin relative z-10" />
+                    ) : (
+                      <Icons.MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform relative z-10" />
+                    )}
+                    <span className="font-bold text-lg relative z-10">{navigatingTo === 'channel' ? "Kutib turing..." : "Mening Kanalim"}</span>
+                  </button>
+
+                  <button onClick={() => showToast("Yangi bildirishnomalar yo'q")} className="glass-panel glass-clickable rounded-3xl px-6 py-5 flex items-center justify-center gap-3 font-bold text-main sm:col-span-2 lg:col-span-1 group">
+                    <Icons.Bell className="w-6 h-6 text-yellow-500 group-hover:rotate-[20deg] transition-transform origin-top" /> 
+                    <span>Bildirishnoma</span>
+                  </button>
+                </div>
+
+                {/* 2-QATOR: Inputlar va Qidiruv */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Dropdown (Kategoriya tanlash) */}
+                  <div className="glass-input rounded-3xl px-6 py-4 flex items-center justify-between cursor-pointer relative" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                    <span className="text-main font-bold">{selectedOpt}</span>
+                    <Icons.ChevronDown className={`w-5 h-5 text-muted transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    
+                    {/* Dropdown menyu (Animatsiyali ochilish) */}
+                    <div className={`absolute top-[110%] left-0 w-full glass-panel rounded-2xl p-2 z-20 flex flex-col gap-1 transition-all duration-300 origin-top ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                      {['Barchasi', 'Rasmlar', 'Videolar', 'Hujjatlar'].map(opt => (
+                        <div key={opt} onClick={(e) => { e.stopPropagation(); setSelectedOpt(opt); setDropdownOpen(false); showToast(`${opt} tanlandi`); }} 
+                             className={`p-3 rounded-xl cursor-pointer font-bold transition-colors ${isDarkMode ? 'hover:bg-slate-700/50 text-slate-200' : 'hover:bg-white/50 text-slate-700'}`}>
+                          {opt}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Sparkle Input */}
+                  <div className="glass-input rounded-3xl px-6 py-4 flex items-center gap-3 group">
+                    <Icons.Sparkles className="w-5 h-5 text-blue-400 group-focus-within:text-blue-500 group-focus-within:animate-pulse" />
+                    <input type="text" placeholder="AI yordamchidan so'rang..." className="bg-transparent border-none outline-none w-full text-main font-bold placeholder-[var(--text-muted)]" />
+                  </div>
+
+                  {/* Katta Qidiruv Paneli */}
+                  <div className="glass-input rounded-3xl px-6 py-3.5 flex items-center gap-4 sm:col-span-2 group">
+                    <Icons.Search className="w-6 h-6 text-muted group-focus-within:text-blue-500 transition-colors" />
+                    <input 
+                      type="text" 
+                      placeholder="Loyiha yoki fayllarni qidirish..." 
+                      value={searchVal}
+                      onChange={(e) => setSearchVal(e.target.value)}
+                      className="bg-transparent border-none outline-none w-full text-main font-bold placeholder-[var(--text-muted)] py-2 text-lg" 
+                    />
+                    {/* Tasdiqlash tugmasi (Ptichka) */}
+                    <button 
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-400 ${searchVal.length > 0 ? 'bg-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.6)] opacity-100 scale-100 rotate-0' : 'bg-slate-400/30 opacity-50 scale-50 -rotate-90 pointer-events-none'}`}
+                      onClick={() => { showToast(`Qidirilmoqda: ${searchVal}`); setSearchVal(''); }}
+                    >
+                      <Icons.Check className="w-5 h-5 text-white stroke-[3]" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* 3-QATOR: Katta SANA va TUGMA (Hover effektlari bilan) */}
+                <div className="glass-panel glass-clickable rounded-[40px] p-8 sm:p-10 flex flex-col justify-between min-h-[250px] relative overflow-hidden group">
+                  <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-[60px] -mr-20 -mt-20 transition-all duration-700 group-hover:scale-150 ${isDarkMode ? 'bg-white/5' : 'bg-white/30'}`}></div>
+                  
+                  <div className="flex justify-between items-start z-10">
+                    <div>
+                      <h2 className="text-xl font-bold mb-3 flex items-center gap-2 text-muted uppercase tracking-widest">
+                        <Icons.Calendar className="text-purple-500 w-6 h-6" /> 
+                        Bugungi Sana
+                      </h2>
+                      <div className="text-4xl sm:text-6xl font-black text-main tracking-tight drop-shadow-sm">
+                        {formatCustomDate(time)}
+                      </div>
+                    </div>
+                    <div className={`w-12 h-12 rounded-full border-[3px] shadow-inner flex items-center justify-center transition-colors ${isDarkMode ? 'border-white/10' : 'border-white/60'}`}>
+                      <div className={`w-4 h-4 rounded-full ${isDarkMode ? 'bg-white/20' : 'bg-white/50'}`}></div>
+                    </div>
+                  </div>
+
+                  <div className="z-10 mt-10 flex flex-wrap gap-4 items-center">
+                    <button onClick={handleCopy} className="glass-pill glass-clickable rounded-full px-8 py-4 font-extrabold flex items-center gap-3 text-main hover:brightness-110 transition-all text-lg shadow-lg">
+                      <Icons.Copy className="w-6 h-6" /> Profil manzilini nusxalash
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* O'NG USTUN (Vidjetlar va Modallar) */}
+              <div className="md:col-span-5 lg:col-span-4 flex flex-col gap-6">
+                
+                {/* 1. Kichik Panellar (Tabs, Switch, Harakatlar) */}
+                <div className="grid grid-cols-2 gap-4">
+                  
+                  {/* Tungi Rejim Switch (Haqiqiy ishlaydi) */}
+                  <div className="glass-panel glass-clickable rounded-[32px] p-5 flex flex-col justify-center items-center gap-4 group" onClick={() => { setIsDarkMode(!isDarkMode); showToast(isDarkMode ? "Kunduzgi rejim" : "Tungi rejim"); }}>
+                    <span className="font-bold text-muted text-sm uppercase tracking-wider">Tungi rejim</span>
+                    <div className={`w-20 h-10 rounded-full p-1.5 relative flex items-center transition-colors duration-500 shadow-inner ${isDarkMode ? 'bg-indigo-500' : 'bg-[#34d399]'}`}>
+                      <div className={`w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center absolute transition-all duration-500 transform ${isDarkMode ? 'left-11 rotate-[360deg]' : 'left-1.5 rotate-0'}`}>
+                        {isDarkMode ? <Icons.Moon className="w-4 h-4 text-indigo-600" /> : <Icons.Sun className="w-4 h-4 text-[#34d399]" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Harakatlar Paneli (Zo'r animatsiyali tugmalar) */}
+                  <div className="glass-panel rounded-[32px] p-5 flex flex-col justify-center items-center gap-3">
+                     <span className="font-bold text-muted text-sm uppercase tracking-wider">Harakatlar</span>
+                     <div className="flex gap-2">
+                        <button onClick={handleStarClick} className="w-10 h-10 rounded-2xl glass-pill glass-clickable flex items-center justify-center">
+                          <Icons.Heart className={`w-5 h-5 transition-colors duration-300 ${isStarred ? 'fill-red-500 text-red-500' : 'text-slate-400'} ${isAnimatingStar ? 'animate-pop' : ''}`} />
+                        </button>
+                        <button onClick={() => setCounter(c => c + 1)} className="w-10 h-10 rounded-2xl glass-pill glass-clickable flex items-center justify-center text-blue-500 hover:bg-blue-500 hover:text-white transition-colors">
+                          <Icons.Plus className="w-5 h-5 stroke-[3]" />
+                        </button>
+                        <button onClick={() => setCounter(c => c > 0 ? c - 1 : 0)} className="w-10 h-10 rounded-2xl glass-pill glass-clickable flex items-center justify-center text-main hover:bg-red-500 hover:text-white transition-colors">
+                          <Icons.Minus className="w-5 h-5 stroke-[3]" />
+                        </button>
+                     </div>
+                     {/* Kichik counter indikatori */}
+                     <div className="h-4 flex items-center justify-center">
+                       {counter > 0 && <span className="text-xs font-black text-blue-500 animate-bounce">Soni: {counter}</span>}
+                     </div>
+                  </div>
+
+                  {/* TABS (Animatsiyali o'tish) */}
+                  <div className="col-span-2 glass-panel rounded-[32px] p-3 flex relative">
+                     {/* Orqadagi faol fon */}
+                     <div className={`absolute top-3 bottom-3 w-[calc(50%-12px)] rounded-2xl shadow-md transition-all duration-400 ease-in-out ${activeTab === 'Asosiy' ? 'left-3' : 'left-[calc(50%+3px)]'} ${isDarkMode ? 'bg-slate-700/80' : 'bg-white/80'}`}></div>
+                     
+                     <button onClick={() => setActiveTab('Asosiy')} className={`flex-1 py-4 text-center z-10 font-bold text-lg transition-colors duration-300 ${activeTab === 'Asosiy' ? 'text-blue-500' : 'text-muted'}`}>
+                        Asosiy
+                     </button>
+                     <button onClick={() => setActiveTab('Sozlamalar')} className={`flex-1 py-4 text-center z-10 font-bold text-lg transition-colors duration-300 ${activeTab === 'Sozlamalar' ? 'text-blue-500' : 'text-muted'}`}>
+                        Sozlamalar
+                     </button>
+                     {/* Kichik qizil doiracha */}
+                     <div className="absolute top-5 right-6 w-3 h-3 rounded-full border-[2.5px] border-red-500 bg-transparent animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Qo'qon Ob-havosi va Vaqt */}
+                <div className="glass-panel glass-clickable rounded-[32px] p-6 flex items-center justify-between group">
+                  <div>
+                    <h3 className="text-xs font-bold text-muted uppercase tracking-widest mb-2 group-hover:text-blue-400 transition-colors">Qo'qon / Vaqt</h3>
+                    <div className="text-4xl font-black tabular-nums text-main">
+                      {time.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                  <div className={`flex items-center gap-3 px-5 py-3 rounded-3xl border shadow-inner transition-colors ${isDarkMode ? 'bg-slate-800/50 border-slate-600/50' : 'bg-white/40 border-white/60'}`}>
+                    <Icons.CloudSun className="w-10 h-10 text-orange-400 animate-pulse" />
+                    <div>
+                      {weather.loading ? (
+                        <div className="h-8 w-16 bg-slate-400/30 rounded-lg animate-pulse"></div>
+                      ) : (
+                        <div className="text-3xl font-black text-main">{weather.temp}°</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Premium Xizmatlar Modali */}
+                <div className="glass-panel rounded-[40px] p-8 flex-1 flex flex-col justify-between relative min-h-[220px] overflow-hidden">
+                   {/* Orqa fon nur */}
+                   <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-purple-500/20 rounded-full blur-[50px]"></div>
+                   <div className={`absolute top-6 right-6 w-10 h-10 rounded-full border-[3px] shadow-inner ${isDarkMode ? 'border-white/10' : 'border-white/60'}`}></div>
+                   
+                   <div className="z-10">
+                     <h3 className="text-2xl font-black text-main flex items-center gap-3">
+                       <Icons.Crown className="w-8 h-8 text-yellow-500 drop-shadow-md" /> Premium Status
+                     </h3>
+                     <p className="text-muted mt-3 text-base font-bold leading-relaxed max-w-[90%]">
+                       Kanaldagi barcha yopiq ma'lumotlar va maxsus imtiyozlarga hoziroq ega bo'ling.
+                     </p>
+                   </div>
+
+                   <button 
+                      onClick={() => showToast("Premium obuna jarayoni boshlandi! 🎉")}
+                      className="color-btn glass-btn-purple rounded-[24px] py-5 mt-8 flex justify-center items-center font-black text-xl w-full tracking-wide z-10 hover:animate-pulse relative"
+                    >
+                     <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
+                       <div className="shimmer-sweep absolute top-0 -bottom-2 -left-10 w-[50%] h-[150%]"></div>
+                     </div>
+                     <span className="relative z-10">Premiumga o'tish</span>
+                   </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Dinamik Xabarnoma (Toast) */}
+          <div className={`fixed bottom-10 left-1/2 transform -translate-x-1/2 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-50 ${toast ? 'translate-y-0 opacity-100 scale-100' : 'translate-y-20 opacity-0 scale-90 pointer-events-none'}`}>
+            <div className={`glass-panel !rounded-full px-8 py-4 font-bold text-lg shadow-2xl flex items-center gap-4 ${isDarkMode ? '!bg-slate-800/90 !border-slate-600' : '!bg-white/90 !border-white'}`}>
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                <Icons.Check className="w-5 h-5 text-white stroke-[3]" />
+              </div>
+              <span className="text-main">{toast}</span>
+            </div>
+          </div>
+
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
