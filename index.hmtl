@@ -104,7 +104,7 @@ const App = () => {
 
   // Saytni ulashish (Web Share API)
   const handleShare = async () => {
-    const shareUrl = 'https://yaxshi-bola.github.io/v5/'; // Siz so'ragan havola
+    const shareUrl = 'https://yaxshi-bola.github.io/v4/'; // Siz so'ragan havola
     if (navigator.share) {
       try {
         await navigator.share({
